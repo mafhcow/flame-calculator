@@ -178,6 +178,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // UI Updates according to Item & Class Type
     function updateFieldVisibilities() {
+        // Read directly from DOM elements so visibility updates immediately
+        state.itemType = elements.selectItemType.value;
+        state.classType = elements.selectClassType.value;
+
         const isWeapon = state.itemType === 'weapon';
         const isDA = state.classType === 'demon_avenger';
         const isXenon = state.classType === 'xenon';
@@ -199,8 +203,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Main Recalculation
     function recalculate() {
-        // Read form inputs into state
-        state.itemType = elements.selectItemType.value;
+        // Ensure field visibilities and state match current DOM inputs
+        updateFieldVisibilities();
+
         state.levelBracket = elements.selectLevelBracket.value;
         state.flameAdvantaged = elements.checkFlameAdvantaged.checked;
         state.baseAttack = Number(elements.inputBaseAttack.value) || 350;
@@ -215,7 +220,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const flamePriceMillions = parseFloat(elements.inputFlamePrice.value);
         state.flamePrice = (isNaN(flamePriceMillions) ? 3 : Math.max(0, flamePriceMillions)) * 1000000;
-        state.fdPer100 = Number(elements.inputFdPer100.value) || 0.785;
+
+        const fdVal = parseFloat(elements.inputFdPer100.value);
+        state.fdPer100 = (!isNaN(fdVal) && fdVal > 0) ? fdVal : 0.785;
         state.currentFlameScore = Number(elements.inputCurrentScore.value) || 0;
 
         // Run flame probability distribution
@@ -383,6 +390,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     elements.inputFlamePrice.addEventListener('input', recalculate);
     elements.inputFdPer100.addEventListener('input', recalculate);
+
+    // Prevent mouse wheel from inadvertently stepping purely typed numbers
+    [elements.inputFlamePrice, elements.inputFdPer100].forEach(input => {
+        if (input) {
+            input.addEventListener('wheel', (e) => e.target.blur(), { passive: true });
+        }
+    });
 
     // Current Score Slider & Input (Bidirectional)
     elements.sliderCurrentScore.addEventListener('input', (e) => {

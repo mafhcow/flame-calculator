@@ -239,6 +239,20 @@ select:focus {
     box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.2);
 }
 
+/* Hide up/down spinner arrows for purely typed inputs */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    margin: 0 !important;
+    display: none !important;
+}
+
+input[type="number"],
+.no-spinners {
+    -moz-appearance: textfield;
+}
+
 select {
     cursor: pointer;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
