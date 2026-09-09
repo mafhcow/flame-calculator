@@ -213,7 +213,8 @@ document.addEventListener('DOMContentLoaded', () => {
         state.statWeights.bossDmg = Number(elements.inputWeightBossDmg.value) || 15.0;
         state.statWeights.hpStat = Number(elements.inputWeightHp.value) || 0.014;
 
-        state.flamePrice = Number(elements.inputFlamePrice.value) || 3000000;
+        const flamePriceMillions = parseFloat(elements.inputFlamePrice.value);
+        state.flamePrice = (isNaN(flamePriceMillions) ? 3 : Math.max(0, flamePriceMillions)) * 1000000;
         state.fdPer100 = Number(elements.inputFdPer100.value) || 0.785;
         state.currentFlameScore = Number(elements.inputCurrentScore.value) || 0;
 
