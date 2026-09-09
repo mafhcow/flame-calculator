@@ -91,6 +91,8 @@ document.addEventListener('DOMContentLoaded', () => {
         tabBtnGain: document.getElementById('tabBtnGain'),
         chartLegend: document.getElementById('chartLegend'),
         legendImprovementItem: document.getElementById('legendImprovementItem'),
+        legendMutedItem: document.getElementById('legendMutedItem'),
+
         // Preset Chips
         presetChipsContainer: document.getElementById('presetChipsContainer')
     };
@@ -283,8 +285,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
                 Score Probability Distribution
             `;
-            elements.legendImprovementItem.style.display = 'flex';
-            elements.legendMutedItem.style.display = 'flex';
+            if (elements.legendImprovementItem) elements.legendImprovementItem.style.display = 'flex';
+            if (elements.legendMutedItem) elements.legendMutedItem.style.display = 'flex';
 
             chartRenderer.renderDistributionChart(
                 elements.mainChartCanvas,
@@ -297,8 +299,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
                 Flames Required for +1 Flame Score vs Current Score
             `;
-            elements.legendImprovementItem.style.display = 'none';
-            elements.legendMutedItem.style.display = 'none';
+            if (elements.legendImprovementItem) elements.legendImprovementItem.style.display = 'none';
+            if (elements.legendMutedItem) elements.legendMutedItem.style.display = 'none';
 
             chartRenderer.renderEfficiencyCurve(
                 elements.mainChartCanvas,
@@ -312,8 +314,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
                 Expected Score Gain from 1 Flame vs Current Score
             `;
-            elements.legendImprovementItem.style.display = 'none';
-            elements.legendMutedItem.style.display = 'none';
+            if (elements.legendImprovementItem) elements.legendImprovementItem.style.display = 'none';
+            if (elements.legendMutedItem) elements.legendMutedItem.style.display = 'none';
 
             chartRenderer.renderEfficiencyCurve(
                 elements.mainChartCanvas,
