@@ -1,0 +1,14 @@
+# OS files
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Logs
+*.log
+
+# Node & temp
+node_modules/
+ref_*.js
+ref_*.html
+scratch_*.js
+test_*.js
