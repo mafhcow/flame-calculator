@@ -357,6 +357,9 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.inputCurrentScore.value = computedScore;
 
         recalculate();
+
+        elements.sliderCurrentScore.value = state.currentFlameScore;
+        elements.inputCurrentScore.value = state.currentFlameScore;
     }
 
     // Event Bindings
@@ -430,7 +433,25 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.btnToggleStatBuilder.classList.toggle('btn-secondary', !isHidden);
     });
 
-    elements.btnApplyStatBuilder.addEventListener('click', applyStatBuilder);
+    // Item Stat Builder auto-updates on direct user edits
+    const builderInputs = [
+        elements.builderMainStat,
+        elements.builderSecStat,
+        elements.builderAtt,
+        elements.builderAllStat,
+        elements.builderBossDmg,
+        elements.builderDmg
+    ];
+    builderInputs.forEach(input => {
+        if (input) {
+            input.addEventListener('input', applyStatBuilder);
+            input.addEventListener('change', applyStatBuilder);
+        }
+    });
+
+    if (elements.btnApplyStatBuilder) {
+        elements.btnApplyStatBuilder.addEventListener('click', applyStatBuilder);
+    }
 
     // Chart Tabs
     elements.tabBtnDist.addEventListener('click', () => {
