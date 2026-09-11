@@ -44,17 +44,25 @@
         '250+':    { single: 13, double: 7, hp: 700 }
     };
 
-    // Weapon attack percentage of base attack per tier
+    // Weapon attack percentage of base attack per tier (from StrategyWiki / KMS standard)
+    // Flame Advantaged weapons: Tiers 3 to 7 (rounded up)
     const WEAPON_ATT_ADV = {
-        '120-159': { 4: 0.16, 5: 0.22, 6: 0.29, 7: 0.37 },
-        '160-199': { 4: 0.22, 5: 0.3025, 6: 0.3993, 7: 0.512435 },
-        '200+':    { 4: 0.264, 5: 0.363, 6: 0.47916, 7: 0.614922 }
+        '0-39':    { 3: 0.03, 4: 0.044, 5: 0.0605, 6: 0.07986, 7: 0.102487 },
+        '40-79':   { 3: 0.06, 4: 0.088, 5: 0.121,  6: 0.15972, 7: 0.204974 },
+        '80-119':  { 3: 0.09, 4: 0.132, 5: 0.1815, 6: 0.23958, 7: 0.307461 },
+        '120-159': { 3: 0.12, 4: 0.176, 5: 0.242,  6: 0.31944, 7: 0.409948 },
+        '160-199': { 3: 0.15, 4: 0.22,  5: 0.3025, 6: 0.3993,  7: 0.512435 },
+        '200+':    { 3: 0.18, 4: 0.264, 5: 0.363,  6: 0.47916, 7: 0.614922 }
     };
 
+    // Non-advantaged weapons: Tiers 1 to 5 (rounded up)
     const WEAPON_ATT_NON_ADV = {
-        '120-159': { 2: 0.08, 3: 0.13, 4: 0.19, 5: 0.26 },
-        '160-199': { 2: 0.11, 3: 0.185, 4: 0.2662, 5: 0.366025 },
-        '200+':    { 2: 0.132, 3: 0.2178, 4: 0.31944, 5: 0.43923 }
+        '0-39':    { 1: 0.01, 2: 0.022, 3: 0.0363, 4: 0.05324, 5: 0.073205 },
+        '40-79':   { 1: 0.02, 2: 0.044, 3: 0.0726, 4: 0.10648, 5: 0.14641 },
+        '80-119':  { 1: 0.03, 2: 0.066, 3: 0.1089, 4: 0.15972, 5: 0.219615 },
+        '120-159': { 1: 0.04, 2: 0.088, 3: 0.1452, 4: 0.21296, 5: 0.29282 },
+        '160-199': { 1: 0.05, 2: 0.11,  3: 0.1815, 4: 0.2662,  5: 0.366025 },
+        '200+':    { 1: 0.06, 2: 0.132, 3: 0.2178, 4: 0.31944, 5: 0.43923 }
     };
 
     function combinations(n, k) {
@@ -189,19 +197,35 @@
     }
 
     /**
-     * Helper to compute weapon attack score per tier
+     * Resolves level bracket identifier to weapon attack table key
+     */
+    function getBracketKey(levelBracket) {
+        if (!levelBracket) return '160-199';
+        const str = String(levelBracket);
+        if (str === '0-39' || str.startsWith('0-')) return '0-39';
+        if (str === '40-79' || str.startsWith('40-')) return '40-79';
+        if (str === '80-119' || str.startsWith('80-')) return '80-119';
+        if (str === '120-159' || str === '120-139' || str === '140-159' || str.startsWith('120-') || str.startsWith('140-')) return '120-159';
+        if (str === '160-199' || str === '160-179' || str === '180-199' || str.startsWith('160-') || str.startsWith('180-')) return '160-199';
+        if (str === '200+' || str === '200-229' || str === '230-249' || str === '250+' || str.startsWith('200') || str.startsWith('250')) return '200+';
+        return '160-199';
+    }
+
+    /**
+     * Helper to compute weapon raw attack increase per tier (rounded up per StrategyWiki)
+     */
+    function getWeaponAttack(tier, levelBracket, baseAttack, flameAdvantaged = true) {
+        const bracketKey = getBracketKey(levelBracket);
+        const table = flameAdvantaged ? WEAPON_ATT_ADV[bracketKey] : WEAPON_ATT_NON_ADV[bracketKey];
+        const pct = (table && table[tier]) || 0;
+        return Math.ceil(baseAttack * pct);
+    }
+
+    /**
+     * Helper to compute weapon attack flame score per tier
      */
     function getWeaponAttackScore(tier, levelBracket, baseAttack, flameAdvantaged, attWeight) {
-        let bracketKey = '160-199';
-        if (levelBracket === '120-139' || levelBracket === '140-159') {
-            bracketKey = '120-159';
-        } else if (levelBracket === '200-229' || levelBracket === '230-249' || levelBracket === '250+') {
-            bracketKey = '200+';
-        }
-
-        const table = flameAdvantaged ? WEAPON_ATT_ADV[bracketKey] : WEAPON_ATT_NON_ADV[bracketKey];
-        const pct = table[tier] || 0;
-        const rawAtt = Math.floor(baseAttack * pct);
+        const rawAtt = getWeaponAttack(tier, levelBracket, baseAttack, flameAdvantaged);
         return rawAtt * attWeight;
     }
 
@@ -424,6 +448,8 @@
         WEAPON_ATT_NON_ADV,
         ETERNAL_TIERS_ADV,
         ETERNAL_TIERS_NON_ADV,
+        getWeaponAttack,
+        getWeaponAttackScore,
         computeScoreDistribution,
         calculateMetrics,
         generateEfficiencyCurve,
