@@ -163,7 +163,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function formatFlames(num) {
         if (!Number.isFinite(num) || num <= 0) return 'N/A';
-        if (num > 9999) return '>9,999';
         if (num >= 100) return Math.round(num).toLocaleString();
         if (num >= 10) return num.toFixed(1);
         return num.toFixed(2);
