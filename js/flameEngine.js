@@ -444,6 +444,106 @@
         return results;
     }
 
+    /**
+     * Finds the target flame score that satisfies a target efficiency (in Billions / 1% FD).
+     * Solves for the maximum score s* where marginal spend / 1% FD <= targetBillionsPerFd.
+     */
+    function findTargetScoreForEfficiency(distribution, targetBillionsPerFd, flamePrice, fdPer100, step = 0.5) {
+        const targetB = Number(targetBillionsPerFd) || 10;
+        const price = Number(flamePrice) || 3000000;
+        const fdRate = Number(fdPer100) || 0.785;
+        const scoreForOneFd = fdRate > 0 ? (100 / fdRate) : Infinity;
+
+        let maxScore = 0;
+        for (const s of distribution.keys()) {
+            if (s > maxScore) maxScore = s;
+        }
+
+        const getBillions = (s) => {
+            const m = calculateMetrics(distribution, s, price);
+            if (!Number.isFinite(m.mesoPerOneScore) || m.mesoPerOneScore <= 0) return Infinity;
+            return (m.mesoPerOneScore * scoreForOneFd) / 1e9;
+        };
+
+        if (getBillions(0) > targetB) {
+            const m0 = calculateMetrics(distribution, 0, price);
+            return {
+                targetScore: 0,
+                achievedBillions: getBillions(0),
+                metrics: m0,
+                probAtLeastTarget: 1.0,
+                flamesToHitTarget: 1.0,
+                maxScore
+            };
+        }
+
+        let best = 0;
+        let l = 0;
+        let r = Math.floor(maxScore / step);
+
+        while (l <= r) {
+            const mid = Math.floor((l + r) / 2);
+            const score = mid * step;
+            const b = getBillions(score);
+            if (b <= targetB) {
+                best = score;
+                l = mid + 1;
+            } else {
+                r = mid - 1;
+            }
+        }
+
+        const metricsAtTarget = calculateMetrics(distribution, best, price);
+        const achievedBillions = getBillions(best);
+
+        // Cumulative probability of rolling >= best from a clean flame
+        let probAtLeast = 0;
+        for (const [score, prob] of distribution.entries()) {
+            if (score >= best) probAtLeast += prob;
+        }
+
+        const flamesToHitTarget = probAtLeast > 0 ? (1 / probAtLeast) : Infinity;
+
+        return {
+            targetScore: best,
+            achievedBillions: Number.isFinite(achievedBillions) ? achievedBillions : 0,
+            metrics: metricsAtTarget,
+            probAtLeastTarget: probAtLeast,
+            flamesToHitTarget,
+            maxScore
+        };
+    }
+
+    /**
+     * Generates a descriptive in-game stat roll equivalent for a target score.
+     * - For armor/accessory: exact X + 6% all stat required to achieve the target flame score
+     * - For weapon: T7 ATT (+raw) + X% Boss where X makes the flame score match the target
+     */
+    function getStatBreakdownRecommendation(config, targetScore) {
+        const { itemType = 'armor', levelBracket = '160-179', baseAttack = 353, statWeights = {} } = config;
+        const attWeight = Number(statWeights.att) || 3.0;
+        const allStatWeight = Number(statWeights.allStat) || 10.0;
+        const bossWeight = Number(statWeights.bossDmg) || 15.0;
+
+        if (itemType === 'weapon') {
+            const bracketKey = getBracketKey(levelBracket);
+            const t7Pct = (WEAPON_ATT_ADV[bracketKey] && WEAPON_ATT_ADV[bracketKey][7]) || 0.614922;
+            const t7Att = Math.ceil(baseAttack * t7Pct);
+            const t7AttScore = t7Att * attWeight;
+            const xBoss = (targetScore - t7AttScore) / bossWeight;
+            const xBossRounded = Math.round(xBoss * 10) / 10;
+            const xBossDisplay = (xBossRounded % 1 === 0) ? xBossRounded.toFixed(0) : xBossRounded.toFixed(1);
+            return `T7 ATT (+${t7Att}) + ${xBossDisplay}% Boss`;
+        }
+
+        // Armor / Accessory: exact X + 6% all stat
+        const allStatContribution = 6 * allStatWeight;
+        const xStat = targetScore - allStatContribution;
+        const xStatRounded = Math.round(xStat * 10) / 10;
+        const xStatDisplay = (xStatRounded % 1 === 0) ? xStatRounded.toFixed(0) : xStatRounded.toFixed(1);
+        return `${xStatDisplay} stat + 6% all stat`;
+    }
+
     // Expose API
     exports.flameEngine = {
         STAT_PER_TIER,
@@ -456,7 +556,10 @@
         computeScoreDistribution,
         calculateMetrics,
         generateEfficiencyCurve,
-        computePercentiles
+        computePercentiles,
+        findTargetScoreForEfficiency,
+        getStatBreakdownRecommendation
     };
 
 })(typeof module !== 'undefined' && module.exports ? module.exports : window);
+

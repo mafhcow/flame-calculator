@@ -36,28 +36,95 @@
         <main class="main-grid">
             <!-- Left Column: Controls & Configuration -->
             <aside class="controls-column">
-                <!-- Equipment & Class Card -->
-                <div class="card control-card">
+                <!-- Mode Switcher -->
+                <div class="mode-switcher-container">
+                    <div class="mode-segmented-control" role="tablist">
+                        <button type="button" class="mode-tab-btn active" id="tabModeEval" role="tab" aria-selected="true">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20v-6M6 20V10M18 20V4"/></svg>
+                            Evaluate Flame
+                        </button>
+                        <button type="button" class="mode-tab-btn" id="tabModeTarget" role="tab" aria-selected="false">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            Target Efficiency
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Target Efficiency Setup Card (Shown in Target Mode) -->
+                <div class="card control-card" id="cardTargetEfficiencyInputs" style="display: none; margin-bottom: 1.5rem;">
                     <div class="card-header">
                         <h2 class="card-title">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 100 4h4a2 2 0 110 4H8"/><path d="M12 6v12"/></svg>
+                            Target Efficiency Goal
+                        </h2>
+                    </div>
+                    <div class="card-body">
+                        <!-- Target Efficiency Input -->
+                        <div class="control-group">
+                            <label class="control-label" for="inputTargetSpend">
+                                Target Spend / 1% FD
+                                <span class="label-sub">In Billions (B Mesos)</span>
+                            </label>
+                            <div style="position: relative;">
+                                <input type="text" inputmode="decimal" id="inputTargetSpend" class="no-spinners" value="10" style="padding-right: 7.5rem; font-size: 1.15rem; font-weight: 700; color: #38bdf8;">
+                                <span style="position: absolute; right: 0.85rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.85rem; font-weight: 600; pointer-events: none;">B / 1% FD</span>
+                            </div>
+                            <div class="preset-chips" id="targetSpendPresets" style="margin-top: 0.6rem;">
+                                <button type="button" class="chip" data-target="2.5">2.5B</button>
+                                <button type="button" class="chip" data-target="5">5B</button>
+                                <button type="button" class="chip active" data-target="10">10B</button>
+                                <button type="button" class="chip" data-target="20">20B</button>
+                                <button type="button" class="chip" data-target="40">40B</button>
+                            </div>
+                        </div>
+
+                        <!-- Weapon Base Attacks for 200 & 250 weapons -->
+                        <div class="control-group" style="margin-top: 1.25rem;">
+                            <label class="control-label">
+                                Weapon Base Attacks
+                                <span class="label-sub">Before flame bonuses</span>
+                            </label>
+                            <div class="stat-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                                <div class="stat-input-group">
+                                    <label for="inputTargetWep200Att">Genesis Wep (200)</label>
+                                    <input type="number" id="inputTargetWep200Att" value="326" min="50" max="900" step="1">
+                                </div>
+                                <div class="stat-input-group">
+                                    <label for="inputTargetWep250Att">Destiny Wep (250)</label>
+                                    <input type="number" id="inputTargetWep250Att" value="358" min="50" max="900" step="1">
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                                <button type="button" class="chip chip-sm active" id="btnWepGenesis200" style="font-size: 0.75rem; padding: 0.2rem 0.6rem;">Genesis (326)</button>
+                                <button type="button" class="chip chip-sm" id="btnWepDestiny250" style="font-size: 0.75rem; padding: 0.2rem 0.6rem;">Destiny (358)</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Equipment & Class Card -->
+                <div class="card control-card" id="cardEquipClass">
+                    <div class="card-header">
+                        <h2 class="card-title" id="titleEquipCard">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
                             Equipment &amp; Class
                         </h2>
                     </div>
                     <div class="card-body">
-                        <!-- Popular Presets -->
-                        <div class="control-group">
-                            <label class="control-label">Quick Presets</label>
-                            <div class="preset-chips" id="presetChipsContainer">
-                                <button type="button" class="chip active" data-preset="cra_armor" id="btnPresetCra">CRA Armor (150)</button>
-                                <button type="button" class="chip" data-preset="absolab_armor" id="btnPresetAbso">Absolab (160)</button>
-                                <button type="button" class="chip" data-preset="arcane_armor" id="btnPresetArcaneArmor">Arcane Armor (200)</button>
-                                <button type="button" class="chip" data-preset="eternal_armor" id="btnPresetEternal">Eternal Armor (250)</button>
-                                <button type="button" class="chip" data-preset="arcane_weapon" id="btnPresetArcaneWep">Arcane Wep (200)</button>
-                                <button type="button" class="chip" data-preset="genesis_weapon" id="btnPresetGenWep">Genesis Wep (200)</button>
-                                <button type="button" class="chip" data-preset="destiny_weapon" id="btnPresetDestinyWep">Destiny Wep (250)</button>
+                        <!-- Evaluator-Only Equipment Setup -->
+                        <div id="evalEquipControls">
+                            <!-- Popular Presets -->
+                            <div class="control-group">
+                                <label class="control-label">Quick Presets</label>
+                                <div class="preset-chips" id="presetChipsContainer">
+                                    <button type="button" class="chip active" data-preset="cra_armor" id="btnPresetCra">CRA Armor (150)</button>
+                                    <button type="button" class="chip" data-preset="absolab_armor" id="btnPresetAbso">Absolab (160)</button>
+                                    <button type="button" class="chip" data-preset="arcane_armor" id="btnPresetArcaneArmor">Arcane Armor (200)</button>
+                                    <button type="button" class="chip" data-preset="eternal_armor" id="btnPresetEternal">Eternal Armor (250)</button>
+                                    <button type="button" class="chip" data-preset="genesis_weapon" id="btnPresetGenWep">Genesis Wep (200)</button>
+                                    <button type="button" class="chip" data-preset="destiny_weapon" id="btnPresetDestinyWep">Destiny Wep (250)</button>
+                                </div>
                             </div>
-                        </div>
 
                         <!-- Item Type -->
                         <div class="control-group">
@@ -96,8 +163,9 @@
                                 Weapon Base Attack
                                 <span class="label-sub">ATT before flames</span>
                             </label>
-                            <input type="number" id="inputBaseAttack" value="353" min="50" max="900" step="1">
+                            <input type="number" id="inputBaseAttack" value="326" min="50" max="900" step="1">
                         </div>
+                        </div> <!-- /#evalEquipControls -->
 
                         <!-- Class Archetype -->
                         <div class="control-group">
@@ -114,38 +182,41 @@
                         <div class="control-group">
                             <label class="control-label">
                                 Stat Equivalences
-                                <span class="label-sub">Flame score weights</span>
+                                <span class="label-sub">Equivalence to Main Stat</span>
                             </label>
                             <div class="stat-grid-3">
                                 <div class="stat-input-group">
                                     <label for="inputWeightAtt">1 ATT = Main</label>
-                                    <input type="number" id="inputWeightAtt" value="3.0" step="0.1" min="0">
+                                    <input type="number" id="inputWeightAtt" value="2.44" step="0.01" min="0">
                                 </div>
                                 <div class="stat-input-group" id="groupAllStatWeight">
                                     <label for="inputWeightAllStat">1% All = Main</label>
-                                    <input type="number" id="inputWeightAllStat" value="10.0" step="0.5" min="0">
+                                    <input type="number" id="inputWeightAllStat" value="12.21" step="0.01" min="0">
                                 </div>
                                 <div class="stat-input-group" id="groupSecStatWeight">
                                     <label for="inputWeightSecStat">Sec Stat Ratio</label>
-                                    <input type="number" id="inputWeightSecStat" value="0.10" step="0.01" min="0">
+                                    <input type="number" id="inputWeightSecStat" value="0.08" step="0.01" min="0">
                                 </div>
                                 <div class="stat-input-group" id="groupBossDmgWeight" style="display: none;">
                                     <label for="inputWeightBossDmg">1% Boss/Dmg</label>
-                                    <input type="number" id="inputWeightBossDmg" value="15.0" step="0.5" min="0">
+                                    <input type="number" id="inputWeightBossDmg" value="10.12" step="0.01" min="0">
                                 </div>
                                 <div class="stat-input-group" id="groupHpWeight" style="display: none;">
                                     <label for="inputWeightHp">1 HP = Stat</label>
                                     <input type="number" id="inputWeightHp" value="0.014" step="0.001" min="0">
                                 </div>
                             </div>
+                            <p style="font-size: 0.73rem; color: var(--text-muted); margin-top: 0.4rem;">
+                                * Default equivalences calibrated for <strong>Mafhwhale</strong>.
+                            </p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Current Flame Input Card -->
-                <div class="card control-card" style="margin-top: 1.5rem;">
+                <div class="card control-card" id="cardCurrentRollMarket" style="margin-top: 1.5rem;">
                     <div class="card-header">
-                        <h2 class="card-title">
+                        <h2 class="card-title" id="titleCurrentRollCard">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20v-6M6 20V10M18 20V4"/></svg>
                             Current Flame Roll
                         </h2>
@@ -155,60 +226,63 @@
                         </button>
                     </div>
                     <div class="card-body">
-                        <!-- Current Flame Score Slider & Input -->
-                        <div class="control-group">
-                            <label class="control-label" for="inputCurrentScore">
-                                Current Flame Score
-                                <span class="label-sub" id="labelMaxScore">Max: 180</span>
-                            </label>
-                            <div class="slider-container">
-                                <input type="range" id="sliderCurrentScore" min="0" max="180" value="95" step="0.5">
-                                <div class="slider-val-box">
-                                    <input type="number" id="inputCurrentScore" min="0" max="300" value="95" step="0.5">
+                        <!-- Evaluator-Only Score & Item Reader Controls -->
+                        <div id="evalScoreRollControls">
+                            <!-- Current Flame Score Slider & Input -->
+                            <div class="control-group">
+                                <label class="control-label" for="inputCurrentScore">
+                                    Current Flame Score
+                                    <span class="label-sub" id="labelMaxScore">Max: 180</span>
+                                </label>
+                                <div class="slider-container">
+                                    <input type="range" id="sliderCurrentScore" min="0" max="180" value="95" step="0.5">
+                                    <div class="slider-val-box">
+                                        <input type="number" id="inputCurrentScore" min="0" max="300" value="95" step="0.5">
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Item Stat Builder Collapsible Panel -->
-                        <div class="stat-builder-panel" id="panelStatBuilder" style="display: none;">
-                            <div class="control-label" style="margin-bottom: 0.75rem;">
-                                <span>Input In-Game Item Bonus Stats</span>
-                                <span class="label-sub">Auto-calculates score</span>
+                            <!-- Item Stat Builder Collapsible Panel -->
+                            <div class="stat-builder-panel" id="panelStatBuilder" style="display: none;">
+                                <div class="control-label" style="margin-bottom: 0.75rem;">
+                                    <span>Input In-Game Item Bonus Stats</span>
+                                    <span class="label-sub">Auto-calculates score</span>
+                                </div>
+                                <div class="stat-grid-3">
+                                    <div class="stat-input-group">
+                                        <label for="builderMainStat">+Main Stat</label>
+                                        <input type="number" id="builderMainStat" value="64" min="0">
+                                    </div>
+                                    <div class="stat-input-group" id="builderGroupSec">
+                                        <label for="builderSecStat">+Sec Stat</label>
+                                        <input type="number" id="builderSecStat" value="0" min="0">
+                                    </div>
+                                    <div class="stat-input-group">
+                                        <label for="builderAtt">+Attack</label>
+                                        <input type="number" id="builderAtt" value="5" min="0">
+                                    </div>
+                                    <div class="stat-input-group" id="builderGroupAll">
+                                        <label for="builderAllStat">+All Stat %</label>
+                                        <input type="number" id="builderAllStat" value="5" min="0">
+                                    </div>
+                                    <div class="stat-input-group" id="builderGroupBoss" style="display: none;">
+                                        <label for="builderBossDmg">+Boss %</label>
+                                        <input type="number" id="builderBossDmg" value="0" min="0">
+                                    </div>
+                                    <div class="stat-input-group" id="builderGroupDmg" style="display: none;">
+                                        <label for="builderDmg">+Damage %</label>
+                                        <input type="number" id="builderDmg" value="0" min="0">
+                                    </div>
+                                </div>
+                                <div style="margin-top: 0.85rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                                    <span style="font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.35rem;">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+                                        Auto-applies to score on edit
+                                    </span>
+                                    <button type="button" class="btn btn-secondary btn-sm" id="btnApplyStatBuilder">Apply Stats</button>
+                                </div>
                             </div>
-                            <div class="stat-grid-3">
-                                <div class="stat-input-group">
-                                    <label for="builderMainStat">+Main Stat</label>
-                                    <input type="number" id="builderMainStat" value="64" min="0">
-                                </div>
-                                <div class="stat-input-group" id="builderGroupSec">
-                                    <label for="builderSecStat">+Sec Stat</label>
-                                    <input type="number" id="builderSecStat" value="0" min="0">
-                                </div>
-                                <div class="stat-input-group">
-                                    <label for="builderAtt">+Attack</label>
-                                    <input type="number" id="builderAtt" value="5" min="0">
-                                </div>
-                                <div class="stat-input-group" id="builderGroupAll">
-                                    <label for="builderAllStat">+All Stat %</label>
-                                    <input type="number" id="builderAllStat" value="5" min="0">
-                                </div>
-                                <div class="stat-input-group" id="builderGroupBoss" style="display: none;">
-                                    <label for="builderBossDmg">+Boss %</label>
-                                    <input type="number" id="builderBossDmg" value="0" min="0">
-                                </div>
-                                <div class="stat-input-group" id="builderGroupDmg" style="display: none;">
-                                    <label for="builderDmg">+Damage %</label>
-                                    <input type="number" id="builderDmg" value="0" min="0">
-                                </div>
-                            </div>
-                            <div style="margin-top: 0.85rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
-                                <span style="font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.35rem;">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
-                                    Auto-applies to score on edit
-                                </span>
-                                <button type="button" class="btn btn-secondary btn-sm" id="btnApplyStatBuilder">Apply Stats</button>
-                            </div>
-                        </div>
+                        </div> <!-- /#evalScoreRollControls -->
 
                         <!-- Meso Price per Flame -->
                         <div class="control-group" style="margin-top: 1.25rem;">
@@ -242,117 +316,161 @@
 
             <!-- Right Column: Results, Metrics & Interactive Visualizations -->
             <section class="results-column">
-                <!-- Top Key Metrics Cards -->
-                <div class="metrics-row">
-                    <!-- Expected Score Gain -->
-                    <div class="metric-card">
-                        <div class="metric-label">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-                            E[Gain from 1 Flame]
-                        </div>
-                        <div class="metric-value" id="valExpectedGain">+0.95</div>
-                        <div class="metric-sub">Average score increase per roll</div>
-                    </div>
-
-                    <!-- Expected Flames per +1 Score (User Requested Metric) -->
-                    <div class="metric-card highlight">
-                        <div class="metric-label">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 23c6.075 0 11-4.925 11-11C23 6.5 18 1 12 1S1 6.5 1 12c0 6.075 4.925 11 11 11zm0-3c-4.418 0-8-3.582-8-8 0-2.6 1.4-4.9 3.5-6.2.2 2.8 2.2 5.2 4.9 5.2 1.3 0 2.5-.5 3.4-1.3.8 1.1 1.2 2.5 1.2 4.1 0 3.418-2.686 6.2-5 6.2z"/></svg>
-                            Flames for +1 Score
-                        </div>
-                        <div class="metric-value" id="valFlamesPerScore">1.05</div>
-                        <div class="metric-sub">Expected flames to gain 1 point (1 / E[Gain])</div>
-                    </div>
-
-                    <!-- Expected Meso Cost per +1 Score -->
-                    <div class="metric-card">
-                        <div class="metric-label">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 100 4h4a2 2 0 110 4H8"/><path d="M12 6v12"/></svg>
-                            Mesos for +1 Score
-                        </div>
-                        <div class="metric-value" id="valMesoPerScore">15.8M</div>
-                        <div class="metric-sub">Expected meso cost per +1 score</div>
-                    </div>
-
-                    <!-- Expected Billions of Meso Spend to Gain 1% FD -->
-                    <div class="metric-card highlight-cyan">
-                        <div class="metric-label">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-                            Meso Spend / 1% FD
-                        </div>
-                        <div class="metric-value" id="valMesoPerFd">5.53B</div>
-                        <div class="metric-sub">Expected billions to gain 1% Final Dmg</div>
-                    </div>
-                </div>
-
-                <!-- Secondary Metric Row -->
-                <div class="secondary-metrics-row">
-                    <div class="mini-metric">
-                        <span class="mini-metric-title">Chance to Roll Better Flame</span>
-                        <span class="mini-metric-val" id="valProbImprovement">5.20%</span>
-                    </div>
-                    <div class="mini-metric">
-                        <span class="mini-metric-title">Flames to Any Better Roll</span>
-                        <span class="mini-metric-val" id="valFlamesToImprove">19.2</span>
-                    </div>
-                    <div class="mini-metric">
-                        <span class="mini-metric-title">Avg Score Gain If Better</span>
-                        <span class="mini-metric-val" id="valCondGain">+14.3 pts</span>
-                    </div>
-                </div>
-
-                <!-- Interactive Visualization Card -->
-                <div class="card chart-container">
-                    <div class="card-header">
-                        <h2 class="card-title" id="chartTitle">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
-                            Score Probability Distribution
-                        </h2>
-                        <div class="chart-header-actions">
-                            <button type="button" class="chart-tab-btn active" id="tabBtnDist">Distribution</button>
-                            <button type="button" class="chart-tab-btn" id="tabBtnCost">Cost Curve (+1 Score)</button>
-                            <button type="button" class="chart-tab-btn" id="tabBtnGain">E[Gain] Curve</button>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="canvas-wrapper">
-                            <canvas id="mainChartCanvas"></canvas>
-                        </div>
-
-                        <!-- Legend -->
-                        <div class="chart-legend" id="chartLegend">
-                            <div class="legend-item">
-                                <span class="legend-color" style="background: #fbbf24;"></span>
-                                <span>Current Flame Score</span>
+                <!-- Single Flame Evaluator View -->
+                <div id="viewSingleEvaluation">
+                    <!-- Top Key Metrics Cards -->
+                    <div class="metrics-row">
+                        <!-- Expected Score Gain -->
+                        <div class="metric-card">
+                            <div class="metric-label">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                                E[Gain from 1 Flame]
                             </div>
-                            <div class="legend-item" id="legendImprovementItem">
-                                <span class="legend-color" style="background: #10b981;"></span>
-                                <span>Better Roll Region (Gain &gt; 0)</span>
+                            <div class="metric-value" id="valExpectedGain">+0.95</div>
+                            <div class="metric-sub">Average score increase per roll</div>
+                        </div>
+
+                        <!-- Expected Flames per +1 Score (User Requested Metric) -->
+                        <div class="metric-card highlight">
+                            <div class="metric-label">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 23c6.075 0 11-4.925 11-11C23 6.5 18 1 12 1S1 6.5 1 12c0 6.075 4.925 11 11 11zm0-3c-4.418 0-8-3.582-8-8 0-2.6 1.4-4.9 3.5-6.2.2 2.8 2.2 5.2 4.9 5.2 1.3 0 2.5-.5 3.4-1.3.8 1.1 1.2 2.5 1.2 4.1 0 3.418-2.686 6.2-5 6.2z"/></svg>
+                                Flames for +1 Score
                             </div>
-                            <div class="legend-item" id="legendMutedItem">
-                                <span class="legend-color" style="background: #6366f1;"></span>
-                                <span>Lower / Equal Roll</span>
+                            <div class="metric-value" id="valFlamesPerScore">1.05</div>
+                            <div class="metric-sub">Expected flames to gain 1 point (1 / E[Gain])</div>
+                        </div>
+
+                        <!-- Expected Meso Cost per +1 Score -->
+                        <div class="metric-card">
+                            <div class="metric-label">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 100 4h4a2 2 0 110 4H8"/><path d="M12 6v12"/></svg>
+                                Mesos for +1 Score
+                            </div>
+                            <div class="metric-value" id="valMesoPerScore">15.8M</div>
+                            <div class="metric-sub">Expected meso cost per +1 score</div>
+                        </div>
+
+                        <!-- Expected Billions of Meso Spend to Gain 1% FD -->
+                        <div class="metric-card highlight-cyan">
+                            <div class="metric-label">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                                Meso Spend / 1% FD
+                            </div>
+                            <div class="metric-value" id="valMesoPerFd">5.53B</div>
+                            <div class="metric-sub">Expected billions to gain 1% Final Dmg</div>
+                        </div>
+                    </div>
+
+                    <!-- Secondary Metric Row -->
+                    <div class="secondary-metrics-row">
+                        <div class="mini-metric">
+                            <span class="mini-metric-title">Chance to Roll Better Flame</span>
+                            <span class="mini-metric-val" id="valProbImprovement">5.20%</span>
+                        </div>
+                        <div class="mini-metric">
+                            <span class="mini-metric-title">Flames to Any Better Roll</span>
+                            <span class="mini-metric-val" id="valFlamesToImprove">19.2</span>
+                        </div>
+                        <div class="mini-metric">
+                            <span class="mini-metric-title">Avg Score Gain If Better</span>
+                            <span class="mini-metric-val" id="valCondGain">+14.3 pts</span>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Visualization Card -->
+                    <div class="card chart-container">
+                        <div class="card-header">
+                            <h2 class="card-title" id="chartTitle">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+                                Score Probability Distribution
+                            </h2>
+                            <div class="chart-header-actions">
+                                <button type="button" class="chart-tab-btn active" id="tabBtnDist">Distribution</button>
+                                <button type="button" class="chart-tab-btn" id="tabBtnCost">Cost Curve (+1 Score)</button>
+                                <button type="button" class="chart-tab-btn" id="tabBtnGain">E[Gain] Curve</button>
                             </div>
                         </div>
+                        <div class="card-body">
+                            <div class="canvas-wrapper">
+                                <canvas id="mainChartCanvas"></canvas>
+                            </div>
+
+                            <!-- Legend -->
+                            <div class="chart-legend" id="chartLegend">
+                                <div class="legend-item">
+                                    <span class="legend-color" style="background: #fbbf24;"></span>
+                                    <span>Current Flame Score</span>
+                                </div>
+                                <div class="legend-item" id="legendImprovementItem">
+                                    <span class="legend-color" style="background: #10b981;"></span>
+                                    <span>Better Roll Region (Gain &gt; 0)</span>
+                                </div>
+                                <div class="legend-item" id="legendMutedItem">
+                                    <span class="legend-color" style="background: #6366f1;"></span>
+                                    <span>Lower / Equal Roll</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
 
+                    <!-- Mathematical & Strategic Guide -->
+                    <article class="math-explainer">
+                        <h3>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                            How the Expected Gain &amp; Cost Metric Works
+                        </h3>
+                        <p>
+                            Traditional flame calculators estimate the cost to achieve a fixed threshold using a geometric distribution (i.e. stop when reaching &ge; target). However, in actual progression, players often want to know: <em>"Given the flame I have right now, how much expected damage gain will 1 more Eternal Flame provide, and what is the expected cost to gain 1 additional flame score?"</em>
+                        </p>
+                        <ul>
+                            <li><strong>Marginal Expected Gain:</strong> <code>E[Gain] = &Sigma; P(s) &times; (s &minus; current)</code> sums the positive surplus score over all possible flame rolls that beat your current item.</li>
+                            <li><strong>Expected Flames per +1 Score:</strong> <code>1 / E[Gain]</code> gives the average number of Eternal Flames consumed to improve your equipment's flame score by 1 point.</li>
+                            <li><strong>Diminishing Returns:</strong> As your current flame reaches higher percentiles (e.g. 95th or 99th percentile), <code>E[Gain]</code> drops sharply and the cost per additional score point escalates exponentially. Use this curve to decide when to stop flaming and invest in other gear pieces!</li>
+                        </ul>
+                    </article>
+                </div> <!-- /#viewSingleEvaluation -->
 
-                <!-- Mathematical & Strategic Guide -->
-                <article class="math-explainer">
-                    <h3>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                        How the Expected Gain &amp; Cost Metric Works
-                    </h3>
-                    <p>
-                        Traditional flame calculators estimate the cost to achieve a fixed threshold using a geometric distribution (i.e. stop when reaching &ge; target). However, in actual progression, players often want to know: <em>"Given the flame I have right now, how much expected damage gain will 1 more Eternal Flame provide, and what is the expected cost to gain 1 additional flame score?"</em>
-                    </p>
-                    <ul>
-                        <li><strong>Marginal Expected Gain:</strong> <code>E[Gain] = &Sigma; P(s) &times; (s &minus; current)</code> sums the positive surplus score over all possible flame rolls that beat your current item.</li>
-                        <li><strong>Expected Flames per +1 Score:</strong> <code>1 / E[Gain]</code> gives the average number of Eternal Flames consumed to improve your equipment's flame score by 1 point.</li>
-                        <li><strong>Diminishing Returns:</strong> As your current flame reaches higher percentiles (e.g. 95th or 99th percentile), <code>E[Gain]</code> drops sharply and the cost per additional score point escalates exponentially. Use this curve to decide when to stop flaming and invest in other gear pieces!</li>
-                    </ul>
-                </article>
+                <!-- Target Efficiency (Inverse) View -->
+                <div id="viewTargetEfficiency" style="display: none;">
+                    <!-- Target Efficiency Hero Banner -->
+                    <div class="target-hero-banner">
+                        <div class="target-hero-left">
+                            <div class="badge-target-mode">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                Inverse Target Mode
+                            </div>
+                            <h2 class="target-hero-title">Target Flame Scores for <span class="accent-text" id="targetHeroBDisplay">10.0B</span> / 1% FD</h2>
+                            <p class="target-hero-desc">
+                                Optimal stopping scores achieving your desired marginal efficiency across the 5 standard equipment tiers.
+                            </p>
+                        </div>
+                        <div class="target-hero-metric">
+                            <span class="target-hero-sub">Target Efficiency Threshold</span>
+                            <span class="target-hero-val" id="targetHeroValBox">10.0B <small style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">/ 1% FD</small></span>
+                        </div>
+                    </div>
+
+                    <!-- 5 Equipment Config Cards Grid -->
+                    <div class="target-cards-grid" id="targetCardsContainer">
+                        <!-- Rendered dynamically by app.js -->
+                    </div>
+
+                    <!-- Equi-marginal Strategy Explainer -->
+                    <article class="math-explainer" style="margin-top: 1.75rem;">
+                        <h3>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                            How to Use Target Efficiency (Equi-Marginal Flaming Strategy)
+                        </h3>
+                        <p>
+                            In optimal MapleStory progression, the <strong>equi-marginal principle</strong> dictates that your total account damage per meso spent is maximized when the marginal cost of the next upgrade is balanced across all equipment slots.
+                        </p>
+                        <ul>
+                            <li><strong>Balanced Progression:</strong> If flaming your Level 160 armor to 135 costs 25B / 1% FD while flaming your Level 250 armor to 150 only costs 6B / 1% FD, spending mesos on the Level 250 armor yields over 4x more damage per meso.</li>
+                            <li><strong>Optimal Stopping Rule:</strong> Pick a target efficiency budget (e.g. 10B / 1% FD). Settle on whatever flame hits or exceeds the target score listed for each item. When all pieces meet this threshold, raise your account target to the next tier (e.g. 20B / 1% FD).</li>
+                            <li><strong>Inspect in Calculator:</strong> Click <em>"Inspect"</em> on any card to jump directly into the full single-item evaluator to review its detailed probability distribution and cost curves.</li>
+                        </ul>
+                    </article>
+                </div> <!-- /#viewTargetEfficiency -->
             </section>
         </main>
 

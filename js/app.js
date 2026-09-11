@@ -12,14 +12,14 @@ document.addEventListener('DOMContentLoaded', () => {
         itemType: 'armor',
         levelBracket: '140-159',
         flameAdvantaged: true,
-        baseAttack: 353,
+        baseAttack: 326,
         classType: 'standard',
         statWeights: {
-            att: 3.0,
-            allStat: 10.0,
-            secStat: 0.10,
-            secStat2: 0.10,
-            bossDmg: 15.0,
+            att: 2.44,
+            allStat: 12.21,
+            secStat: 0.08,
+            secStat2: 0.08,
+            bossDmg: 10.12,
             hpStat: 0.014
         },
         currentFlameScore: 95,
@@ -29,11 +29,37 @@ document.addEventListener('DOMContentLoaded', () => {
         currentDistribution: null,
         currentMaxScore: 180,
         efficiencyCurve: [],
-        hoverCanvasX: null
+        hoverCanvasX: null,
+
+        // Target Efficiency (Inverse Mode) State
+        calculatorMode: 'eval', // 'eval' or 'target'
+        targetEfficiencyB: 10.0,
+        wep200BaseAttack: 326,
+        wep250BaseAttack: 358
     };
 
     // DOM Elements
     const elements = {
+        // Mode Controls
+        tabModeEval: document.getElementById('tabModeEval'),
+        tabModeTarget: document.getElementById('tabModeTarget'),
+        cardTargetEfficiencyInputs: document.getElementById('cardTargetEfficiencyInputs'),
+        inputTargetSpend: document.getElementById('inputTargetSpend'),
+        targetSpendPresets: document.getElementById('targetSpendPresets'),
+        inputTargetWep200Att: document.getElementById('inputTargetWep200Att'),
+        inputTargetWep250Att: document.getElementById('inputTargetWep250Att'),
+        btnWepGenesis200: document.getElementById('btnWepGenesis200'),
+        btnWepDestiny250: document.getElementById('btnWepDestiny250'),
+
+        // Sidebar card wrappers & titles
+        evalEquipControls: document.getElementById('evalEquipControls'),
+        cardEquipClass: document.getElementById('cardEquipClass'),
+        titleEquipCard: document.getElementById('titleEquipCard'),
+        cardCurrentRollMarket: document.getElementById('cardCurrentRollMarket'),
+        titleCurrentRollCard: document.getElementById('titleCurrentRollCard'),
+        evalScoreRollControls: document.getElementById('evalScoreRollControls'),
+
+        // Evaluator inputs
         selectItemType: document.getElementById('selectItemType'),
         selectLevelBracket: document.getElementById('selectLevelBracket'),
         checkFlameAdvantaged: document.getElementById('checkFlameAdvantaged'),
@@ -94,7 +120,19 @@ document.addEventListener('DOMContentLoaded', () => {
         legendMutedItem: document.getElementById('legendMutedItem'),
 
         // Preset Chips
-        presetChipsContainer: document.getElementById('presetChipsContainer')
+        presetChipsContainer: document.getElementById('presetChipsContainer'),
+        btnPresetAbso: document.getElementById('btnPresetAbso'),
+        btnPresetArcaneArmor: document.getElementById('btnPresetArcaneArmor'),
+        btnPresetEternal: document.getElementById('btnPresetEternal'),
+        btnPresetGenWep: document.getElementById('btnPresetGenWep'),
+        btnPresetDestinyWep: document.getElementById('btnPresetDestinyWep'),
+
+        // Target Efficiency View elements
+        viewSingleEvaluation: document.getElementById('viewSingleEvaluation'),
+        viewTargetEfficiency: document.getElementById('viewTargetEfficiency'),
+        targetHeroBDisplay: document.getElementById('targetHeroBDisplay'),
+        targetHeroValBox: document.getElementById('targetHeroValBox'),
+        targetCardsContainer: document.getElementById('targetCardsContainer')
     };
 
     // Equipment Presets
@@ -123,26 +161,19 @@ document.addEventListener('DOMContentLoaded', () => {
             flameAdvantaged: true,
             currentScore: 140
         },
-        arcane_weapon: {
-            itemType: 'weapon',
-            levelBracket: '200-229',
-            flameAdvantaged: true,
-            baseAttack: 353,
-            currentScore: 320
-        },
         genesis_weapon: {
             itemType: 'weapon',
             levelBracket: '200-229',
             flameAdvantaged: true,
-            baseAttack: 375,
-            currentScore: 350
+            baseAttack: 326,
+            currentScore: 320
         },
         destiny_weapon: {
             itemType: 'weapon',
             levelBracket: '250+',
             flameAdvantaged: true,
-            baseAttack: 373,
-            currentScore: 380
+            baseAttack: 358,
+            currentScore: 350
         }
     };
 
@@ -173,6 +204,283 @@ document.addEventListener('DOMContentLoaded', () => {
         if (num >= 1000) return Math.round(num).toLocaleString() + 'B';
         if (num >= 100) return num.toFixed(1) + 'B';
         return num.toFixed(2) + 'B';
+    }
+
+    // 5 Standard Target Equipment Configurations
+    const TARGET_CONFIGS = [
+        {
+            id: 'armor_160',
+            name: 'Level 160 Armor / Accessory',
+            subName: 'Absolab / Sweetwater',
+            badge: 'Lvl 160 Armor',
+            isWeapon: false,
+            itemType: 'armor',
+            levelBracket: '160-179',
+            flameAdvantaged: true,
+            icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>'
+        },
+        {
+            id: 'armor_200',
+            name: 'Level 200 Armor / Accessory',
+            subName: 'Arcane Umbra',
+            badge: 'Lvl 200 Armor',
+            isWeapon: false,
+            itemType: 'armor',
+            levelBracket: '200-229',
+            flameAdvantaged: true,
+            icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>'
+        },
+        {
+            id: 'armor_250',
+            name: 'Level 250 Armor / Accessory',
+            subName: 'Eternal',
+            badge: 'Lvl 250 Armor',
+            isWeapon: false,
+            itemType: 'armor',
+            levelBracket: '250+',
+            flameAdvantaged: true,
+            icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>'
+        },
+        {
+            id: 'weapon_200',
+            name: 'Genesis Weapon (200)',
+            subName: 'Genesis Weapon',
+            badge: 'Lvl 200 Genesis',
+            isWeapon: true,
+            itemType: 'weapon',
+            levelBracket: '200-229',
+            flameAdvantaged: true,
+            getBaseAttack: () => state.wep200BaseAttack,
+            icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="M16 16l4 4"/><path d="M19 21l2-2"/></svg>'
+        },
+        {
+            id: 'weapon_250',
+            name: 'Destiny Weapon (250)',
+            subName: 'Destiny Weapon',
+            badge: 'Lvl 250 Destiny',
+            isWeapon: true,
+            itemType: 'weapon',
+            levelBracket: '250+',
+            flameAdvantaged: true,
+            getBaseAttack: () => state.wep250BaseAttack,
+            icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="M16 16l4 4"/><path d="M19 21l2-2"/></svg>'
+        }
+    ];
+
+    // Mode Switcher Handler
+    function setCalculatorMode(mode) {
+        state.calculatorMode = mode;
+
+        if (mode === 'eval') {
+            elements.tabModeEval.classList.add('active');
+            elements.tabModeEval.setAttribute('aria-selected', 'true');
+            elements.tabModeTarget.classList.remove('active');
+            elements.tabModeTarget.setAttribute('aria-selected', 'false');
+
+            if (elements.cardTargetEfficiencyInputs) elements.cardTargetEfficiencyInputs.style.display = 'none';
+            if (elements.evalEquipControls) elements.evalEquipControls.style.display = 'block';
+            if (elements.evalScoreRollControls) elements.evalScoreRollControls.style.display = 'block';
+
+            if (elements.titleEquipCard) {
+                elements.titleEquipCard.innerHTML = `
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                    Equipment &amp; Class
+                `;
+            }
+            if (elements.titleCurrentRollCard) {
+                elements.titleCurrentRollCard.innerHTML = `
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20v-6M6 20V10M18 20V4"/></svg>
+                    Current Flame Roll
+                `;
+            }
+            if (elements.btnToggleStatBuilder) elements.btnToggleStatBuilder.style.display = 'inline-flex';
+
+            elements.viewSingleEvaluation.style.display = 'block';
+            elements.viewTargetEfficiency.style.display = 'none';
+
+            recalculate();
+        } else if (mode === 'target') {
+            elements.tabModeTarget.classList.add('active');
+            elements.tabModeTarget.setAttribute('aria-selected', 'true');
+            elements.tabModeEval.classList.remove('active');
+            elements.tabModeEval.setAttribute('aria-selected', 'false');
+
+            if (elements.cardTargetEfficiencyInputs) elements.cardTargetEfficiencyInputs.style.display = 'block';
+            if (elements.evalEquipControls) elements.evalEquipControls.style.display = 'none';
+            if (elements.evalScoreRollControls) elements.evalScoreRollControls.style.display = 'none';
+
+            if (elements.titleEquipCard) {
+                elements.titleEquipCard.innerHTML = `
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                    Class &amp; Equivalences
+                `;
+            }
+            if (elements.titleCurrentRollCard) {
+                elements.titleCurrentRollCard.innerHTML = `
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 100 4h4a2 2 0 110 4H8"/><path d="M12 6v12"/></svg>
+                    Market &amp; Damage Scaling
+                `;
+            }
+            if (elements.btnToggleStatBuilder) elements.btnToggleStatBuilder.style.display = 'none';
+            if (elements.panelStatBuilder) elements.panelStatBuilder.style.display = 'none';
+
+            elements.viewSingleEvaluation.style.display = 'none';
+            elements.viewTargetEfficiency.style.display = 'block';
+
+            renderTargetEfficiencyResults();
+        }
+    }
+
+    // Render Target Efficiency Results for the 5 configs
+    function renderTargetEfficiencyResults() {
+        const targetB = parseFloat(elements.inputTargetSpend.value);
+        state.targetEfficiencyB = (!isNaN(targetB) && targetB > 0) ? targetB : 10.0;
+
+        const flamePriceMillions = parseFloat(elements.inputFlamePrice.value);
+        state.flamePrice = (isNaN(flamePriceMillions) ? 3 : Math.max(0, flamePriceMillions)) * 1000000;
+
+        const fdVal = parseFloat(elements.inputFdPer100.value);
+        state.fdPer100 = (!isNaN(fdVal) && fdVal > 0) ? fdVal : 0.785;
+
+        state.wep200BaseAttack = Number(elements.inputTargetWep200Att.value) || 326;
+        state.wep250BaseAttack = Number(elements.inputTargetWep250Att.value) || 358;
+        state.classType = elements.selectClassType.value;
+
+        state.statWeights.att = Number(elements.inputWeightAtt.value) || 2.44;
+        state.statWeights.allStat = Number(elements.inputWeightAllStat.value) || 12.21;
+        state.statWeights.secStat = Number(elements.inputWeightSecStat.value) || 0.08;
+        state.statWeights.secStat2 = Number(elements.inputWeightSecStat.value) || 0.08;
+        state.statWeights.bossDmg = Number(elements.inputWeightBossDmg.value) || 10.12;
+        state.statWeights.hpStat = Number(elements.inputWeightHp.value) || 0.014;
+
+        // Update hero banner
+        if (elements.targetHeroBDisplay) {
+            elements.targetHeroBDisplay.textContent = `${state.targetEfficiencyB.toFixed(1)}B`;
+        }
+        if (elements.targetHeroValBox) {
+            elements.targetHeroValBox.innerHTML = `${state.targetEfficiencyB.toFixed(1)}B <small style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">/ 1% FD</small>`;
+        }
+
+        let cardsHtml = '';
+
+        for (const item of TARGET_CONFIGS) {
+            const baseAtt = item.isWeapon ? item.getBaseAttack() : 0;
+            const cfg = {
+                itemType: item.itemType,
+                levelBracket: item.levelBracket,
+                flameAdvantaged: item.flameAdvantaged,
+                baseAttack: baseAtt,
+                classType: state.classType,
+                statWeights: state.statWeights
+            };
+
+            const dist = flameEngine.computeScoreDistribution(cfg);
+            const solved = flameEngine.findTargetScoreForEfficiency(
+                dist,
+                state.targetEfficiencyB,
+                state.flamePrice,
+                state.fdPer100,
+                0.5
+            );
+            const breakdown = flameEngine.getStatBreakdownRecommendation(cfg, solved.targetScore);
+
+            const scoreDisplay = solved.targetScore % 1 === 0 ? solved.targetScore.toFixed(0) : solved.targetScore.toFixed(1);
+            const flamesDisplay = formatFlames(solved.metrics.flamesPerOneScore);
+            const mesoDisplay = formatMeso(solved.metrics.mesoPerOneScore);
+            const oddsDisplay = Number.isFinite(solved.flamesToHitTarget) && solved.flamesToHitTarget > 0
+                ? `1 in ${Math.round(solved.flamesToHitTarget).toLocaleString()}`
+                : 'N/A';
+            const pctDisplay = (solved.probAtLeastTarget * 100).toFixed(2) + '%';
+            const gainDisplay = solved.metrics.expectedGainPerFlame > 0
+                ? `+${solved.metrics.expectedGainPerFlame.toFixed(2)}`
+                : '0.00';
+            const spendDisplay = formatBillions(solved.achievedBillions);
+
+            // Card HTML
+            cardsHtml += `
+                <div class="target-card ${item.isWeapon ? 'highlight-weapon' : ''}">
+                    <div class="target-card-header">
+                        <div>
+                            <h3 class="target-card-title">${item.name}</h3>
+                            <span style="font-size: 0.78rem; color: var(--text-muted);">${item.subName}${item.isWeapon ? ` &bull; ${baseAtt} Base ATT` : ''}</span>
+                        </div>
+                        <span class="target-card-badge">${item.badge}</span>
+                    </div>
+
+                    <div class="target-card-score-box">
+                        <div class="target-score-num">${scoreDisplay}</div>
+                        <div class="target-score-label">Target Flame Score</div>
+                        <div class="target-spend-pill">Achieved: ${spendDisplay} / 1% FD</div>
+                    </div>
+
+                    <div class="target-metrics-grid">
+                        <div class="target-metric-item">
+                            <span class="target-metric-name">Flames / +1 Score</span>
+                            <span class="target-metric-val">${flamesDisplay}</span>
+                        </div>
+                        <div class="target-metric-item">
+                            <span class="target-metric-name">Mesos / +1 Score</span>
+                            <span class="target-metric-val">${mesoDisplay}</span>
+                        </div>
+                        <div class="target-metric-item">
+                            <span class="target-metric-name">Odds (&ge; Target)</span>
+                            <span class="target-metric-val">${oddsDisplay}</span>
+                        </div>
+                        <div class="target-metric-item">
+                            <span class="target-metric-name">Roll Probability</span>
+                            <span class="target-metric-val">${pctDisplay}</span>
+                        </div>
+                    </div>
+
+                    <div class="target-breakdown-box">
+                        <strong>Roll Equivalent:</strong> ${breakdown}
+                    </div>
+
+                    <div class="target-card-actions">
+                        <button type="button" class="btn btn-secondary btn-sm btn-inspect-target" data-config-id="${item.id}" data-score="${solved.targetScore}">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            Inspect in Calculator &rarr;
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        if (elements.targetCardsContainer) {
+            elements.targetCardsContainer.innerHTML = cardsHtml;
+        }
+    }
+
+    // Inspect Target Score in Single Item Calculator
+    function inspectTargetInCalculator(configId, targetScore) {
+        const cfgItem = TARGET_CONFIGS.find(c => c.id === configId);
+        if (!cfgItem) return;
+
+        setCalculatorMode('eval');
+
+        elements.selectItemType.value = cfgItem.itemType;
+        elements.selectLevelBracket.value = cfgItem.levelBracket;
+        elements.checkFlameAdvantaged.checked = true;
+
+        if (cfgItem.isWeapon) {
+            elements.inputBaseAttack.value = cfgItem.getBaseAttack();
+        }
+
+        document.querySelectorAll('.preset-chips .chip').forEach(c => c.classList.remove('active'));
+        if (configId === 'armor_160') elements.btnPresetAbso?.classList.add('active');
+        else if (configId === 'armor_200') elements.btnPresetArcaneArmor?.classList.add('active');
+        else if (configId === 'armor_250') elements.btnPresetEternal?.classList.add('active');
+        else if (configId === 'weapon_200') elements.btnPresetGenWep?.classList.add('active');
+        else if (configId === 'weapon_250') elements.btnPresetDestinyWep?.classList.add('active');
+
+        state.currentFlameScore = Number(targetScore);
+        elements.sliderCurrentScore.value = state.currentFlameScore;
+        elements.inputCurrentScore.value = state.currentFlameScore;
+
+        updateFieldVisibilities();
+        recalculate();
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     // UI Updates according to Item & Class Type
@@ -207,14 +515,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         state.levelBracket = elements.selectLevelBracket.value;
         state.flameAdvantaged = elements.checkFlameAdvantaged.checked;
-        state.baseAttack = Number(elements.inputBaseAttack.value) || 350;
+        state.baseAttack = Number(elements.inputBaseAttack.value) || 326;
         state.classType = elements.selectClassType.value;
 
-        state.statWeights.att = Number(elements.inputWeightAtt.value) || 3.0;
-        state.statWeights.allStat = Number(elements.inputWeightAllStat.value) || 10.0;
-        state.statWeights.secStat = Number(elements.inputWeightSecStat.value) || 0.10;
-        state.statWeights.secStat2 = Number(elements.inputWeightSecStat.value) || 0.10;
-        state.statWeights.bossDmg = Number(elements.inputWeightBossDmg.value) || 15.0;
+        state.statWeights.att = Number(elements.inputWeightAtt.value) || 2.44;
+        state.statWeights.allStat = Number(elements.inputWeightAllStat.value) || 12.21;
+        state.statWeights.secStat = Number(elements.inputWeightSecStat.value) || 0.08;
+        state.statWeights.secStat2 = Number(elements.inputWeightSecStat.value) || 0.08;
+        state.statWeights.bossDmg = Number(elements.inputWeightBossDmg.value) || 10.12;
         state.statWeights.hpStat = Number(elements.inputWeightHp.value) || 0.014;
 
         const flamePriceMillions = parseFloat(elements.inputFlamePrice.value);
@@ -368,7 +676,75 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.inputCurrentScore.value = state.currentFlameScore;
     }
 
-    // Event Bindings
+    // Handles inputs shared across both modes (weights, price, % FD, class)
+    function handleGeneralConfigChange() {
+        if (state.calculatorMode === 'target') {
+            renderTargetEfficiencyResults();
+        } else {
+            recalculate();
+        }
+    }
+
+    // Mode Switcher Events
+    if (elements.tabModeEval) {
+        elements.tabModeEval.addEventListener('click', () => setCalculatorMode('eval'));
+    }
+    if (elements.tabModeTarget) {
+        elements.tabModeTarget.addEventListener('click', () => setCalculatorMode('target'));
+    }
+
+    // Target Spend Presets
+    if (elements.targetSpendPresets) {
+        elements.targetSpendPresets.addEventListener('click', (e) => {
+            const chip = e.target.closest('.chip');
+            if (!chip) return;
+            const targetVal = chip.getAttribute('data-target');
+            if (targetVal) {
+                elements.inputTargetSpend.value = targetVal;
+                elements.targetSpendPresets.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                renderTargetEfficiencyResults();
+            }
+        });
+    }
+
+    // Target Spend Input
+    if (elements.inputTargetSpend) {
+        elements.inputTargetSpend.addEventListener('input', () => {
+            const val = parseFloat(elements.inputTargetSpend.value);
+            if (elements.targetSpendPresets) {
+                elements.targetSpendPresets.querySelectorAll('.chip').forEach(c => {
+                    c.classList.toggle('active', parseFloat(c.getAttribute('data-target')) === val);
+                });
+            }
+            renderTargetEfficiencyResults();
+        });
+        elements.inputTargetSpend.addEventListener('wheel', (e) => e.target.blur(), { passive: true });
+    }
+
+    // Target Weapon Base Attacks
+    if (elements.inputTargetWep200Att) {
+        elements.inputTargetWep200Att.addEventListener('input', renderTargetEfficiencyResults);
+    }
+    if (elements.inputTargetWep250Att) {
+        elements.inputTargetWep250Att.addEventListener('input', renderTargetEfficiencyResults);
+    }
+
+    // Quick Weapon Presets
+    if (elements.btnWepGenesis200) {
+        elements.btnWepGenesis200.addEventListener('click', () => {
+            elements.inputTargetWep200Att.value = 326;
+            renderTargetEfficiencyResults();
+        });
+    }
+    if (elements.btnWepDestiny250) {
+        elements.btnWepDestiny250.addEventListener('click', () => {
+            elements.inputTargetWep250Att.value = 358;
+            renderTargetEfficiencyResults();
+        });
+    }
+
+    // Event Bindings for Evaluator
     elements.selectItemType.addEventListener('change', () => {
         updateFieldVisibilities();
         recalculate();
@@ -377,18 +753,19 @@ document.addEventListener('DOMContentLoaded', () => {
     elements.selectLevelBracket.addEventListener('change', recalculate);
     elements.checkFlameAdvantaged.addEventListener('change', recalculate);
     elements.inputBaseAttack.addEventListener('input', recalculate);
+
     elements.selectClassType.addEventListener('change', () => {
         updateFieldVisibilities();
-        recalculate();
+        handleGeneralConfigChange();
     });
 
     // Weight inputs
     [elements.inputWeightAtt, elements.inputWeightAllStat, elements.inputWeightSecStat, elements.inputWeightBossDmg, elements.inputWeightHp].forEach(input => {
-        input.addEventListener('input', recalculate);
+        if (input) input.addEventListener('input', handleGeneralConfigChange);
     });
 
-    elements.inputFlamePrice.addEventListener('input', recalculate);
-    elements.inputFdPer100.addEventListener('input', recalculate);
+    elements.inputFlamePrice.addEventListener('input', handleGeneralConfigChange);
+    elements.inputFdPer100.addEventListener('input', handleGeneralConfigChange);
 
     // Prevent mouse wheel from inadvertently stepping purely typed numbers
     [elements.inputFlamePrice, elements.inputFdPer100].forEach(input => {
@@ -420,7 +797,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!preset) return;
 
         // Active state
-        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.preset-chips .chip').forEach(c => c.classList.remove('active'));
         chip.classList.add('active');
 
         // Apply preset
@@ -465,6 +842,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (elements.btnApplyStatBuilder) {
         elements.btnApplyStatBuilder.addEventListener('click', applyStatBuilder);
     }
+
+    // Click Delegation for "Inspect in Calculator" buttons
+    document.addEventListener('click', (e) => {
+        const inspectBtn = e.target.closest('.btn-inspect-target');
+        if (!inspectBtn) return;
+        const configId = inspectBtn.getAttribute('data-config-id');
+        const score = inspectBtn.getAttribute('data-score');
+        if (configId) {
+            inspectTargetInCalculator(configId, score);
+        }
+    });
 
     // Chart Tabs
     elements.tabBtnDist.addEventListener('click', () => {

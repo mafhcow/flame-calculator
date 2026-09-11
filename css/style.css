@@ -770,3 +770,374 @@ table.data-table tr:hover td {
 .app-footer a:hover {
     color: var(--flame-orange);
 }
+
+/* ==========================================================================
+   Target Efficiency (Inverse Mode) Styles
+   ========================================================================== */
+
+/* Mode Switcher Segmented Control */
+.mode-switcher-container {
+    margin-bottom: 1.25rem;
+}
+
+.mode-segmented-control {
+    display: flex;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 4px;
+    gap: 4px;
+}
+
+.mode-tab-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.65rem 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.mode-tab-btn:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.mode-tab-btn.active {
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.18) 0%, rgba(236, 72, 153, 0.14) 100%);
+    border: 1px solid rgba(249, 115, 22, 0.45);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);
+}
+
+.mode-tab-btn svg {
+    flex-shrink: 0;
+}
+
+/* Target Efficiency Hero Banner */
+.target-hero-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.85) 100%);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem 1.75rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    gap: 1.5rem;
+}
+
+.target-hero-banner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #38bdf8, #818cf8, #c084fc);
+}
+
+.badge-target-mode {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    padding: 0.2rem 0.6rem;
+    border-radius: 9999px;
+    margin-bottom: 0.5rem;
+}
+
+.target-hero-title {
+    font-size: 1.45rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.015em;
+}
+
+.target-hero-title .accent-text {
+    background: linear-gradient(135deg, #38bdf8, #818cf8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.target-hero-desc {
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    margin-top: 0.25rem;
+    max-width: 600px;
+}
+
+.target-hero-metric {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.target-hero-sub {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.target-hero-val {
+    font-size: 2rem;
+    font-weight: 800;
+    font-family: var(--font-mono);
+    color: #38bdf8;
+    line-height: 1.1;
+    margin-top: 0.2rem;
+}
+
+@media (max-width: 768px) {
+    .target-hero-banner {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .target-hero-metric {
+        align-items: flex-start;
+        text-align: left;
+    }
+}
+
+/* 5 Target Cards Grid */
+.target-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.25rem;
+}
+
+.target-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 1.35rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.target-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(249, 115, 22, 0.4);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 0 20px rgba(249, 115, 22, 0.15);
+}
+
+.target-card.highlight-weapon {
+    border-color: rgba(139, 92, 246, 0.25);
+}
+
+.target-card.highlight-weapon:hover {
+    border-color: rgba(139, 92, 246, 0.5);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 0 20px rgba(139, 92, 246, 0.18);
+}
+
+.target-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.target-card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.target-card-badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.2rem 0.55rem;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+}
+
+.target-card.highlight-weapon .target-card-badge {
+    background: rgba(139, 92, 246, 0.15);
+    border-color: rgba(139, 92, 246, 0.35);
+    color: #c084fc;
+}
+
+.target-card-score-box {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.target-score-num {
+    font-size: 2.35rem;
+    font-weight: 800;
+    font-family: var(--font-mono);
+    color: #fbbf24;
+    line-height: 1;
+    letter-spacing: -0.02em;
+}
+
+.target-card.highlight-weapon .target-score-num {
+    color: #c084fc;
+}
+
+.target-score-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-top: 0.35rem;
+}
+
+.target-spend-pill {
+    display: inline-block;
+    margin-top: 0.5rem;
+    padding: 0.2rem 0.65rem;
+    border-radius: 9999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    font-family: var(--font-mono);
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    color: #38bdf8;
+}
+
+.target-metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.65rem;
+    margin-bottom: 1rem;
+}
+
+.target-metric-item {
+    background: rgba(15, 23, 42, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: var(--radius-sm);
+    padding: 0.55rem 0.65rem;
+}
+
+.target-metric-name {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    display: block;
+}
+
+.target-metric-val {
+    font-size: 0.95rem;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    color: var(--text-primary);
+    margin-top: 0.15rem;
+    display: block;
+}
+
+.target-breakdown-box {
+    background: rgba(255, 255, 255, 0.02);
+    border-left: 3px solid var(--flame-amber);
+    padding: 0.5rem 0.75rem;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 1.1rem;
+    line-height: 1.4;
+}
+
+.target-breakdown-box strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.target-card.highlight-weapon .target-breakdown-box {
+    border-left-color: #a855f7;
+}
+
+.target-card-actions {
+    margin-top: auto;
+}
+
+.btn-inspect-target {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    font-weight: 600;
+    font-size: 0.82rem;
+    padding: 0.55rem;
+}
+
+/* Comparison Matrix Table */
+.target-matrix-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    text-align: left;
+}
+
+.target-matrix-table th {
+    background: rgba(15, 23, 42, 0.8);
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--border-subtle);
+    white-space: nowrap;
+}
+
+.target-matrix-table td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    color: var(--text-primary);
+    white-space: nowrap;
+}
+
+.target-matrix-table tr:hover td {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.target-matrix-table td.score-cell {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    color: #fbbf24;
+}
+
+.target-matrix-table td.spend-cell {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    color: #38bdf8;
+}
+
+.target-matrix-table td.stat-cell {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    white-space: normal;
+    min-width: 180px;
+}
+
