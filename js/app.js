@@ -141,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
             itemType: 'weapon',
             levelBracket: '250+',
             flameAdvantaged: true,
-            baseAttack: 400,
+            baseAttack: 373,
             currentScore: 380
         }
     };
