@@ -8,9 +8,12 @@
 (function(exports) {
     'use strict';
 
-    // Tier probabilities for Eternal (Rainbow) Flames
-    // Flame Advantaged: Tiers 4 to 7
-    // Non-Advantaged: Tiers 2 to 5
+    // Official Nexon KMS probability disclosure:
+    // Source: https://maplestory.nexon.com/Guide/OtherProbability/game/gameAddOption
+    // Eternal / Black Rebirth Flame base tier probabilities:
+    // Tier 1: 0%, Tier 2: 29%, Tier 3: 45%, Tier 4: 25%, Tier 5: 1%
+    // Flame Advantaged (Boss Gear) adds +2 tiers -> Tiers 4 to 7
+    // Non-Advantaged (Normal Gear) receives raw tiers -> Tiers 2 to 5
     const ETERNAL_TIERS_ADV = [
         { tier: 4, prob: 0.29 },
         { tier: 5, prob: 0.45 },
@@ -25,12 +28,13 @@
         { tier: 5, prob: 0.01 }
     ];
 
-    // Non-advantaged line count distribution
+    // Non-advantaged line count distribution from official Nexon KMS probability disclosure:
+    // (1 line: 40%, 2 lines: 40%, 3 lines: 16%, 4 lines: 4%)
     const NON_ADV_LINE_PROBS = {
         1: 0.40,
         2: 0.40,
-        3: 0.15,
-        4: 0.05
+        3: 0.16,
+        4: 0.04
     };
 
     // Stat per tier table for armor/accessories
@@ -245,7 +249,11 @@
         } = config;
 
         const attWeight = Number(statWeights.att) || 3;
-        const totalPool = itemType === 'weapon' ? 21 : 19;
+        // Both weapons and non-weapons have exactly 19 possible flame stat lines:
+        // - Non-weapons: 4 single stat, 6 double stat, HP, MP, Def, Att, M.Att, Speed, Jump, All Stat %, Level Reduction (19)
+        // - Weapons: 4 single stat, 6 double stat, HP, MP, Def, Att, M.Att, Boss Dmg %, Damage %, All Stat %, Level Reduction (19)
+        // (Weapons cannot roll Speed or Jump, but can roll Boss Damage % and Damage %)
+        const totalPool = 19;
         const usefulLines = getUsefulLines(config);
         const U = usefulLines.length;
         const J = totalPool - U; // Number of junk lines
