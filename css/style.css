@@ -439,7 +439,7 @@ input:checked + .toggle-slider:before {
 .metrics-row {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 1rem;
+    gap: 1.15rem;
     margin-bottom: 1.75rem;
 }
 
@@ -485,6 +485,30 @@ input:checked + .toggle-slider:before {
 
 .metric-card.highlight-cyan .metric-value {
     background: linear-gradient(135deg, #a5f3fc 0%, #06b6d4 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.metric-card.highlight-gold {
+    background: linear-gradient(180deg, rgba(251, 191, 36, 0.1) 0%, rgba(15, 23, 42, 0.6) 100%);
+    border-color: rgba(251, 191, 36, 0.35);
+    box-shadow: 0 0 25px rgba(251, 191, 36, 0.12);
+}
+
+.metric-card.highlight-gold .metric-value {
+    background: linear-gradient(135deg, #fef08a 0%, #fbbf24 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.metric-card.highlight-emerald {
+    background: linear-gradient(180deg, rgba(16, 185, 129, 0.1) 0%, rgba(15, 23, 42, 0.6) 100%);
+    border-color: rgba(16, 185, 129, 0.35);
+    box-shadow: 0 0 25px rgba(16, 185, 129, 0.12);
+}
+
+.metric-card.highlight-emerald .metric-value {
+    background: linear-gradient(135deg, #a7f3d0 0%, #10b981 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -1049,7 +1073,20 @@ table.data-table tr:hover td {
     background: rgba(15, 23, 42, 0.4);
     border: 1px solid rgba(255, 255, 255, 0.04);
     border-radius: var(--radius-sm);
-    padding: 0.45rem 0.55rem;
+    padding: 0.5rem 0.6rem;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.target-metric-item.target-metric-full {
+    grid-column: span 2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.55rem 0.75rem;
+    background: rgba(6, 182, 212, 0.06);
+    border-color: rgba(6, 182, 212, 0.2);
+    min-width: 0;
 }
 
 .target-metric-name {
@@ -1057,18 +1094,44 @@ table.data-table tr:hover td {
     color: var(--text-muted);
     font-weight: 500;
     display: block;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    line-height: 1.25;
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 .target-metric-val {
-    font-size: 0.88rem;
+    font-size: 0.92rem;
     font-weight: 700;
     font-family: var(--font-mono);
     color: var(--text-primary);
-    margin-top: 0.12rem;
+    margin-top: 0.18rem;
     display: block;
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+.target-metric-full .target-metric-val {
+    margin-top: 0;
+    font-size: 1rem;
+    white-space: nowrap;
+}
+
+.highlight-cyan-text {
+    color: #38bdf8 !important;
+}
+
+.highlight-orange-text {
+    color: #fb923c !important;
+}
+
+.highlight-gold-text {
+    color: #fbbf24 !important;
+}
+
+.highlight-emerald-text {
+    color: #10b981 !important;
 }
 
 .target-breakdown-box {
@@ -1078,8 +1141,10 @@ table.data-table tr:hover td {
     border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
     font-size: 0.78rem;
     color: var(--text-secondary);
-    margin-bottom: 0.9rem;
+    margin-bottom: 0.85rem;
     line-height: 1.35;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 .target-breakdown-box strong {

@@ -102,13 +102,10 @@ document.addEventListener('DOMContentLoaded', () => {
         builderGroupBoss: document.getElementById('builderGroupBoss'),
         builderGroupDmg: document.getElementById('builderGroupDmg'),
 
-        // Metric Display Cards
-        valExpectedGain: document.getElementById('valExpectedGain'),
-        valFlamesPerScore: document.getElementById('valFlamesPerScore'),
-        valMesoPerScore: document.getElementById('valMesoPerScore'),
+        // Headline Metric Display Cards
         valMesoPerFd: document.getElementById('valMesoPerFd'),
-        valProbImprovement: document.getElementById('valProbImprovement'),
         valFlamesToImprove: document.getElementById('valFlamesToImprove'),
+        valMesoToImprove: document.getElementById('valMesoToImprove'),
         valCondGain: document.getElementById('valCondGain'),
 
         // Charts
@@ -205,6 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!Number.isFinite(num) || num <= 0) return 'N/A';
         if (num >= 1000) return Math.round(num).toLocaleString() + 'B';
         if (num >= 100) return num.toFixed(1) + 'B';
+        if (num < 0.01 && num > 0) return num.toFixed(3) + 'B';
         return num.toFixed(2) + 'B';
     }
 
@@ -390,16 +388,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const breakdown = flameEngine.getStatBreakdownRecommendation(cfg, solved.targetScore);
 
             const scoreDisplay = solved.targetScore % 1 === 0 ? solved.targetScore.toFixed(0) : solved.targetScore.toFixed(1);
-            const flamesDisplay = formatFlames(solved.metrics.flamesPerOneScore);
-            const mesoDisplay = formatMeso(solved.metrics.mesoPerOneScore);
-            const oddsDisplay = Number.isFinite(solved.flamesToHitTarget) && solved.flamesToHitTarget > 0
-                ? `1 in ${Math.round(solved.flamesToHitTarget).toLocaleString()}`
-                : 'N/A';
-            const pctDisplay = (solved.probAtLeastTarget * 100).toFixed(2) + '%';
-            const gainDisplay = solved.metrics.expectedGainPerFlame > 0
-                ? `+${solved.metrics.expectedGainPerFlame.toFixed(2)}`
-                : '0.00';
             const spendDisplay = formatBillions(solved.achievedBillions);
+            const flamesToImproveDisplay = formatFlames(solved.metrics.flamesToImprove);
+            const mesoToImproveBillions = Number.isFinite(solved.metrics.mesoToImprove) && solved.metrics.mesoToImprove > 0
+                ? (solved.metrics.mesoToImprove / 1e9)
+                : Infinity;
+            const mesoToImproveDisplay = formatBillions(mesoToImproveBillions);
+            const condGainDisplay = solved.metrics.condExpectedGain > 0
+                ? `+${solved.metrics.condExpectedGain.toFixed(1)} pts`
+                : '0 pts';
 
             const displayName = isWeapon && state.targetZeroWeapon
                 ? (item.id === 'weapon_200' ? 'Zero Genesis (200)' : 'Zero Destiny (250)')
@@ -425,30 +422,29 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="target-card-score-box">
                         <div class="target-score-num">${scoreDisplay}</div>
                         <div class="target-score-label">Target Flame Score</div>
-                        <div class="target-spend-pill">Achieved: ${spendDisplay} / 1% FD</div>
                     </div>
 
                     <div class="target-metrics-grid">
                         <div class="target-metric-item">
-                            <span class="target-metric-name">Flames / +1 Score</span>
-                            <span class="target-metric-val">${flamesDisplay}</span>
+                            <span class="target-metric-name">Spend / 1% FD</span>
+                            <span class="target-metric-val highlight-cyan-text">${spendDisplay}</span>
                         </div>
                         <div class="target-metric-item">
-                            <span class="target-metric-name">Mesos / +1 Score</span>
-                            <span class="target-metric-val">${mesoDisplay}</span>
+                            <span class="target-metric-name">Avg Gain If Better</span>
+                            <span class="target-metric-val highlight-emerald-text">${condGainDisplay}</span>
                         </div>
                         <div class="target-metric-item">
-                            <span class="target-metric-name">Odds (&ge; Target)</span>
-                            <span class="target-metric-val">${oddsDisplay}</span>
+                            <span class="target-metric-name">Flames to Better</span>
+                            <span class="target-metric-val highlight-orange-text">${flamesToImproveDisplay}</span>
                         </div>
                         <div class="target-metric-item">
-                            <span class="target-metric-name">Roll Probability</span>
-                            <span class="target-metric-val">${pctDisplay}</span>
+                            <span class="target-metric-name">Mesos to Better</span>
+                            <span class="target-metric-val highlight-gold-text">${mesoToImproveDisplay}</span>
                         </div>
                     </div>
 
                     <div class="target-breakdown-box">
-                        <strong>Roll Equivalent:</strong> ${breakdown}
+                        <strong>Equivalent:</strong> ${breakdown}
                     </div>
 
                     <div class="target-card-actions">
@@ -577,23 +573,20 @@ document.addEventListener('DOMContentLoaded', () => {
             elements.inputCurrentScore.value = state.currentFlameScore;
         }
 
-        // Render Metric Cards
-        elements.valExpectedGain.textContent = metrics.expectedGainPerFlame > 0 ?
-            `+${metrics.expectedGainPerFlame.toFixed(2)}` : '0.00';
-        elements.valFlamesPerScore.textContent = formatFlames(metrics.flamesPerOneScore);
-        elements.valMesoPerScore.textContent = formatMeso(metrics.mesoPerOneScore);
-
         // Calculate Expected Spend to Gain 1% Final Damage
         const scoreForOneFd = state.fdPer100 > 0 ? (100 / state.fdPer100) : Infinity;
         const mesoForOneFd = Number.isFinite(metrics.mesoPerOneScore) && metrics.mesoPerOneScore > 0 ?
             (metrics.mesoPerOneScore * scoreForOneFd) : Infinity;
         const billionsForOneFd = Number.isFinite(mesoForOneFd) ? (mesoForOneFd / 1e9) : Infinity;
 
-        elements.valMesoPerFd.textContent = formatBillions(billionsForOneFd);
+        const mesoToImproveBillions = Number.isFinite(metrics.mesoToImprove) && metrics.mesoToImprove > 0 ?
+            (metrics.mesoToImprove / 1e9) : Infinity;
 
-        elements.valProbImprovement.textContent = `${(metrics.probImprovement * 100).toFixed(2)}%`;
-        elements.valFlamesToImprove.textContent = formatFlames(metrics.flamesToImprove);
-        elements.valCondGain.textContent = metrics.condExpectedGain > 0 ?
+        // Render Headline Metric Cards
+        if (elements.valMesoPerFd) elements.valMesoPerFd.textContent = formatBillions(billionsForOneFd);
+        if (elements.valFlamesToImprove) elements.valFlamesToImprove.textContent = formatFlames(metrics.flamesToImprove);
+        if (elements.valMesoToImprove) elements.valMesoToImprove.textContent = formatBillions(mesoToImproveBillions);
+        if (elements.valCondGain) elements.valCondGain.textContent = metrics.condExpectedGain > 0 ?
             `+${metrics.condExpectedGain.toFixed(1)} pts` : '0 pts';
 
         // Generate efficiency curve for charts
