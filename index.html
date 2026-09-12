@@ -86,17 +86,27 @@
                             </label>
                             <div class="stat-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
                                 <div class="stat-input-group">
-                                    <label for="inputTargetWep200Att">Genesis Wep (200)</label>
+                                    <label for="inputTargetWep200Att" id="lblTargetWep200">Genesis Wep (200)</label>
                                     <input type="number" id="inputTargetWep200Att" value="326" min="50" max="900" step="1">
                                 </div>
                                 <div class="stat-input-group">
-                                    <label for="inputTargetWep250Att">Destiny Wep (250)</label>
+                                    <label for="inputTargetWep250Att" id="lblTargetWep250">Destiny Wep (250)</label>
                                     <input type="number" id="inputTargetWep250Att" value="358" min="50" max="900" step="1">
                                 </div>
                             </div>
-                            <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
-                                <button type="button" class="chip chip-sm active" id="btnWepGenesis200" style="font-size: 0.75rem; padding: 0.2rem 0.6rem;">Genesis (326)</button>
-                                <button type="button" class="chip chip-sm" id="btnWepDestiny250" style="font-size: 0.75rem; padding: 0.2rem 0.6rem;">Destiny (358)</button>
+                        </div>
+
+                        <!-- Zero Weapon Toggle -->
+                        <div class="control-group" style="margin-top: 1.1rem; padding-top: 0.9rem; border-top: 1px solid var(--border-subtle);">
+                            <div class="toggle-wrapper">
+                                <div>
+                                    <span class="toggle-text">Zero Weapon</span>
+                                    <span class="label-sub" style="display: block; font-size: 0.72rem; color: var(--text-muted); margin-top: 0.1rem;">Non-advantaged (T5 ATT baseline)</span>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="checkTargetZeroWeapon">
+                                    <span class="toggle-slider"></span>
+                                </label>
                             </div>
                         </div>
                     </div>

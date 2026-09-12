@@ -528,20 +528,32 @@
      * - For weapon: T7 ATT (+raw) + X% Boss where X makes the flame score match the target
      */
     function getStatBreakdownRecommendation(config, targetScore) {
-        const { itemType = 'armor', levelBracket = '160-179', baseAttack = 353, statWeights = {} } = config;
+        const { itemType = 'armor', levelBracket = '160-179', baseAttack = 353, statWeights = {}, flameAdvantaged = true } = config;
         const attWeight = Number(statWeights.att) || 3.0;
         const allStatWeight = Number(statWeights.allStat) || 10.0;
         const bossWeight = Number(statWeights.bossDmg) || 15.0;
 
         if (itemType === 'weapon') {
             const bracketKey = getBracketKey(levelBracket);
-            const t7Pct = (WEAPON_ATT_ADV[bracketKey] && WEAPON_ATT_ADV[bracketKey][7]) || 0.614922;
-            const t7Att = Math.ceil(baseAttack * t7Pct);
-            const t7AttScore = t7Att * attWeight;
-            const xBoss = (targetScore - t7AttScore) / bossWeight;
-            const xBossRounded = Math.round(xBoss * 10) / 10;
-            const xBossDisplay = (xBossRounded % 1 === 0) ? xBossRounded.toFixed(0) : xBossRounded.toFixed(1);
-            return `T7 ATT (+${t7Att}) + ${xBossDisplay}% Boss`;
+            if (flameAdvantaged === false) {
+                // Non-advantaged / Zero weapon baseline: T5 ATT (+raw) + X% Boss
+                const t5Pct = (WEAPON_ATT_NON_ADV[bracketKey] && WEAPON_ATT_NON_ADV[bracketKey][5]) || 0.43923;
+                const t5Att = Math.ceil(baseAttack * t5Pct);
+                const t5AttScore = t5Att * attWeight;
+                const xBoss = (targetScore - t5AttScore) / bossWeight;
+                const xBossRounded = Math.round(xBoss * 10) / 10;
+                const xBossDisplay = (xBossRounded % 1 === 0) ? xBossRounded.toFixed(0) : xBossRounded.toFixed(1);
+                return `T5 ATT (+${t5Att}) + ${xBossDisplay}% Boss`;
+            } else {
+                // Flame advantaged weapon baseline: T7 ATT (+raw) + X% Boss
+                const t7Pct = (WEAPON_ATT_ADV[bracketKey] && WEAPON_ATT_ADV[bracketKey][7]) || 0.614922;
+                const t7Att = Math.ceil(baseAttack * t7Pct);
+                const t7AttScore = t7Att * attWeight;
+                const xBoss = (targetScore - t7AttScore) / bossWeight;
+                const xBossRounded = Math.round(xBoss * 10) / 10;
+                const xBossDisplay = (xBossRounded % 1 === 0) ? xBossRounded.toFixed(0) : xBossRounded.toFixed(1);
+                return `T7 ATT (+${t7Att}) + ${xBossDisplay}% Boss`;
+            }
         }
 
         // Armor / Accessory: exact X + 6% all stat

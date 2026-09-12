@@ -35,7 +35,8 @@ document.addEventListener('DOMContentLoaded', () => {
         calculatorMode: 'eval', // 'eval' or 'target'
         targetEfficiencyB: 10.0,
         wep200BaseAttack: 326,
-        wep250BaseAttack: 358
+        wep250BaseAttack: 358,
+        targetZeroWeapon: false
     };
 
     // DOM Elements
@@ -48,8 +49,9 @@ document.addEventListener('DOMContentLoaded', () => {
         targetSpendPresets: document.getElementById('targetSpendPresets'),
         inputTargetWep200Att: document.getElementById('inputTargetWep200Att'),
         inputTargetWep250Att: document.getElementById('inputTargetWep250Att'),
-        btnWepGenesis200: document.getElementById('btnWepGenesis200'),
-        btnWepDestiny250: document.getElementById('btnWepDestiny250'),
+        lblTargetWep200: document.getElementById('lblTargetWep200'),
+        lblTargetWep250: document.getElementById('lblTargetWep250'),
+        checkTargetZeroWeapon: document.getElementById('checkTargetZeroWeapon'),
 
         // Sidebar card wrappers & titles
         evalEquipControls: document.getElementById('evalEquipControls'),
@@ -344,6 +346,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         state.wep200BaseAttack = Number(elements.inputTargetWep200Att.value) || 326;
         state.wep250BaseAttack = Number(elements.inputTargetWep250Att.value) || 358;
+        state.targetZeroWeapon = elements.checkTargetZeroWeapon ? elements.checkTargetZeroWeapon.checked : false;
         state.classType = elements.selectClassType.value;
 
         state.statWeights.att = Number(elements.inputWeightAtt.value) || 2.44;
@@ -364,11 +367,13 @@ document.addEventListener('DOMContentLoaded', () => {
         let cardsHtml = '';
 
         for (const item of TARGET_CONFIGS) {
-            const baseAtt = item.isWeapon ? item.getBaseAttack() : 0;
+            const isWeapon = item.isWeapon;
+            const isAdv = isWeapon ? !state.targetZeroWeapon : item.flameAdvantaged;
+            const baseAtt = isWeapon ? item.getBaseAttack() : 0;
             const cfg = {
                 itemType: item.itemType,
                 levelBracket: item.levelBracket,
-                flameAdvantaged: item.flameAdvantaged,
+                flameAdvantaged: isAdv,
                 baseAttack: baseAtt,
                 classType: state.classType,
                 statWeights: state.statWeights
@@ -396,15 +401,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 : '0.00';
             const spendDisplay = formatBillions(solved.achievedBillions);
 
+            const displayName = isWeapon && state.targetZeroWeapon
+                ? (item.id === 'weapon_200' ? 'Zero Genesis (200)' : 'Zero Destiny (250)')
+                : item.name;
+            const displaySub = isWeapon && state.targetZeroWeapon
+                ? `Zero (Non-Adv) &bull; ${baseAtt} Base ATT`
+                : `${item.subName}${isWeapon ? ` &bull; ${baseAtt} Base ATT` : ''}`;
+            const displayBadge = isWeapon && state.targetZeroWeapon
+                ? (item.id === 'weapon_200' ? 'Lvl 200 Zero' : 'Lvl 250 Zero')
+                : item.badge;
+
             // Card HTML
             cardsHtml += `
                 <div class="target-card ${item.isWeapon ? 'highlight-weapon' : ''}">
                     <div class="target-card-header">
                         <div>
-                            <h3 class="target-card-title">${item.name}</h3>
-                            <span style="font-size: 0.78rem; color: var(--text-muted);">${item.subName}${item.isWeapon ? ` &bull; ${baseAtt} Base ATT` : ''}</span>
+                            <h3 class="target-card-title">${displayName}</h3>
+                            <span style="font-size: 0.78rem; color: var(--text-muted);">${displaySub}</span>
                         </div>
-                        <span class="target-card-badge">${item.badge}</span>
+                        <span class="target-card-badge">${displayBadge}</span>
                     </div>
 
                     <div class="target-card-score-box">
@@ -460,10 +475,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         elements.selectItemType.value = cfgItem.itemType;
         elements.selectLevelBracket.value = cfgItem.levelBracket;
-        elements.checkFlameAdvantaged.checked = true;
 
         if (cfgItem.isWeapon) {
             elements.inputBaseAttack.value = cfgItem.getBaseAttack();
+            elements.checkFlameAdvantaged.checked = !state.targetZeroWeapon;
+        } else {
+            elements.checkFlameAdvantaged.checked = true;
         }
 
         document.querySelectorAll('.preset-chips .chip').forEach(c => c.classList.remove('active'));
@@ -730,16 +747,29 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.inputTargetWep250Att.addEventListener('input', renderTargetEfficiencyResults);
     }
 
-    // Quick Weapon Presets
-    if (elements.btnWepGenesis200) {
-        elements.btnWepGenesis200.addEventListener('click', () => {
-            elements.inputTargetWep200Att.value = 326;
-            renderTargetEfficiencyResults();
-        });
-    }
-    if (elements.btnWepDestiny250) {
-        elements.btnWepDestiny250.addEventListener('click', () => {
-            elements.inputTargetWep250Att.value = 358;
+    // Zero Weapon Toggle
+    if (elements.checkTargetZeroWeapon) {
+        elements.checkTargetZeroWeapon.addEventListener('change', () => {
+            state.targetZeroWeapon = elements.checkTargetZeroWeapon.checked;
+            if (state.targetZeroWeapon) {
+                if (elements.lblTargetWep200) elements.lblTargetWep200.textContent = 'Zero Genesis (342)';
+                if (elements.inputTargetWep200Att && (elements.inputTargetWep200Att.value === '326' || !elements.inputTargetWep200Att.value)) {
+                    elements.inputTargetWep200Att.value = '342';
+                }
+                if (elements.lblTargetWep250) elements.lblTargetWep250.textContent = 'Zero Destiny (375)';
+                if (elements.inputTargetWep250Att && (elements.inputTargetWep250Att.value === '358' || !elements.inputTargetWep250Att.value)) {
+                    elements.inputTargetWep250Att.value = '375';
+                }
+            } else {
+                if (elements.lblTargetWep200) elements.lblTargetWep200.textContent = 'Genesis Wep (200)';
+                if (elements.inputTargetWep200Att && elements.inputTargetWep200Att.value === '342') {
+                    elements.inputTargetWep200Att.value = '326';
+                }
+                if (elements.lblTargetWep250) elements.lblTargetWep250.textContent = 'Destiny Wep (250)';
+                if (elements.inputTargetWep250Att && elements.inputTargetWep250Att.value === '375') {
+                    elements.inputTargetWep250Att.value = '358';
+                }
+            }
             renderTargetEfficiencyResults();
         });
     }
